@@ -8,20 +8,20 @@ import tornadofx.*
 import java.time.LocalDate
 
 object StatsEventModel {
-    object RefreshRequest : FXEvent(EventBus.RunOn.BackgroundThread)
+    class RefreshRequest : FXEvent(EventBus.RunOn.BackgroundThread)
     class RefreshEvent(val stats: Map<String, Int>) : FXEvent()
 }
 
 data class DailyTotal(val entryDate: LocalDate, val calories: Int)
 
 class StatsController : Controller() {
-    val today = LocalDate.of(LocalDate.now().year, LocalDate.now().month, LocalDate.now().dayOfMonth)
+    private val today: LocalDate = LocalDate.of(LocalDate.now().year, LocalDate.now().month, LocalDate.now().dayOfMonth)
 
     init {
-        subscribe<DiaryEntryEventModel.AddEvent> { fire(StatsEventModel.RefreshEvent(refresh())) }
-        subscribe<DiaryEntryEventModel.DeleteEvent> { fire(StatsEventModel.RefreshEvent(refresh())) }
-        subscribe<DiaryEntryEventModel.RefreshEvent> { fire(StatsEventModel.RefreshEvent(refresh())) }
-        subscribe<DiaryEntryEventModel.UpdateEvent> { fire(StatsEventModel.RefreshEvent(refresh())) }
+        subscribe<DiaryEntryEventModel.AddEvent> { fire(StatsEventModel.RefreshRequest()) }
+        subscribe<DiaryEntryEventModel.DeleteEvent> { fire(StatsEventModel.RefreshRequest()) }
+        subscribe<DiaryEntryEventModel.RefreshEvent> { fire(StatsEventModel.RefreshRequest()) }
+        subscribe<DiaryEntryEventModel.UpdateEvent> { fire(StatsEventModel.RefreshRequest()) }
 
         subscribe<StatsEventModel.RefreshRequest> { fire(StatsEventModel.RefreshEvent(refresh())) }
     }

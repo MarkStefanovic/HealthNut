@@ -22,7 +22,15 @@ class DiaryEntryListView : View() {
             fixedWidth(100.0)
             addClass(Styles.leftAlignedCell)
             setOnEditCommit {
-                fire(DiaryEntryEventModel.UpdateEntryDateRequest(model.id.value.toInt(), it.newValue))
+                fire(DiaryEntryEventModel.UpdateEntryDateRequest(it.rowValue.id, it.newValue))
+                selectionModel.selectNext()
+            }
+        }
+        column("Description", DiaryEntry::description).apply {
+            makeEditable()
+            prefWidth = 200.0
+            setOnEditCommit {
+                fire(DiaryEntryEventModel.UpdateDescriptionRequest(it.rowValue.id, it.newValue))
                 selectionModel.selectNext()
             }
         }
@@ -31,15 +39,7 @@ class DiaryEntryListView : View() {
             addClass(Styles.rightAlignedCell)
             fixedWidth(80.0)
             setOnEditCommit {
-                fire(DiaryEntryEventModel.UpdateCaloriesRequest(model.id.value.toInt(), it.newValue))
-                selectionModel.selectNext()
-            }
-        }
-        column("Description", DiaryEntry::description).apply {
-            makeEditable()
-            prefWidth = 200.0
-            setOnEditCommit {
-                fire(DiaryEntryEventModel.UpdateDescriptionRequest(model.id.value.toInt(), it.newValue))
+                fire(DiaryEntryEventModel.UpdateCaloriesRequest(it.rowValue.id, it.newValue))
                 selectionModel.selectNext()
             }
         }
@@ -47,10 +47,8 @@ class DiaryEntryListView : View() {
 
         regainFocusAfterEdit()
         enableCellEditing()
-//        enableDirtyTracking()
 
         subscribe<DiaryEntryEventModel.AddEvent> { event ->
-
             if (event.item != null) {
                 requestFocus()
                 val nextRow = items.lastIndex + 1

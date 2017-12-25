@@ -11,7 +11,7 @@ import tornadofx.*
 
 object FoodEventModel {
     class AddRequest(val newName: String = "", val newCalories: Int = 0) : FXEvent(EventBus.RunOn.BackgroundThread)
-    class AddEvent(val item: Food?) : FXEvent()
+    class AddEvent(val item: Food) : FXEvent()
 
     class FilterByNameRequest(val nameLike: String = "") : FXEvent(EventBus.RunOn.BackgroundThread)
     class FilterByNameEvent(val items: List<Food>?) : FXEvent()
@@ -40,25 +40,16 @@ class FoodController : Controller() {
         subscribe<FoodEventModel.DeleteRequest> { fire(FoodEventModel.DeleteEvent(delete(it.id))) }
         subscribe<FoodEventModel.RefreshRequest> { fire(FoodEventModel.RefreshEvent(refresh())) }
         subscribe<FoodEventModel.FilterByNameRequest> { fire(FoodEventModel.FilterByNameEvent(filterByName(it.nameLike))) }
-
-        fire(FoodEventModel.RefreshRequest)
     }
 
-    private fun add(newName: String, newCalories: Int): Food? {
-        return try {
-            val newFood = execute {
-                Foods.insert {
-                    it[name] = newName
-                    it[calories] = newCalories
-                }
+    private fun add(newName: String, newCalories: Int): Food {
+        val newFood = execute {
+            Foods.insert {
+                it[name] = newName
+                it[calories] = newCalories
             }
-            Food(newFood[Foods.id], newName, newCalories)
-        } catch (e: Exception) {
-            runLater {
-                alert(Alert.AlertType.ERROR, "Error", "Unable to add a row new row to the db.\nError: $e")
-            }
-            null
         }
+        return Food(newFood[Foods.id], newName, newCalories)
     }
 
     private fun updateCalories(id: Int, updatedCalories: Int) = execute {

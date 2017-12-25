@@ -39,9 +39,6 @@ class DiaryEntryController : Controller() {
         subscribe<DiaryEntryEventModel.DeleteRequest> { fire(DiaryEntryEventModel.DeleteEvent(delete(it.id))) }
         subscribe<DiaryEntryEventModel.RefreshRequest> { fire(DiaryEntryEventModel.RefreshEvent(refresh())) }
         subscribe<DiaryEntryEventModel.FilterByEntryDateRequest> { fire(DiaryEntryEventModel.RefreshEvent(filterByEntryDate(it.entryDate))) }
-
-        fire(DiaryEntryEventModel.RefreshRequest())
-        fire(DiaryEntryEventModel.FilterByEntryDateRequest())
     }
 
     private fun add(newEntryDate: LocalDate, newDescription: String, newCalories: Int): DiaryEntry {

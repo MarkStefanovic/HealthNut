@@ -35,7 +35,7 @@ class FoodListView : View() {
                 makeEditable()
                 prefWidth = 200.0
                 setOnEditCommit {
-                    fire(FoodEventModel.UpdateNameRequest(model.id.value, it.newValue))
+                    fire(FoodEventModel.UpdateNameRequest(it.rowValue.id, it.newValue))
                     selectionModel.selectNext()
                 }
             }
@@ -44,7 +44,7 @@ class FoodListView : View() {
                 addClass(Styles.rightAlignedCell)
                 fixedWidth(80.0)
                 setOnEditCommit {
-                    fire(FoodEventModel.UpdateCaloriesRequest(model.id.value, it.newValue))
+                    fire(FoodEventModel.UpdateCaloriesRequest(it.rowValue.id, it.newValue))
                     selectionModel.selectNext()
                 }
             }
@@ -60,14 +60,12 @@ class FoodListView : View() {
             enableCellEditing()
 
             subscribe<FoodEventModel.AddEvent> { event ->
-                if (event.item != null) {
-                    requestFocus()
-                    val nextRow = items.lastIndex + 1
-                    items.add(nextRow, event.item)
-                    scrollTo(nextRow)
-                    selectionModel.select(nextRow, nameCol)
-                    edit(nextRow, nameCol)
-                }
+                requestFocus()
+                val nextRow = items.lastIndex + 1
+                items.add(nextRow, event.item)
+                scrollTo(nextRow)
+                selectionModel.select(nextRow, nameCol)
+                edit(nextRow, nameCol)
             }
             subscribe<FoodEventModel.DeleteEvent> { event -> items.remove(selectedItem) }
             subscribe<FoodEventModel.RefreshEvent> { event ->

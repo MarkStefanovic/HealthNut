@@ -4,9 +4,7 @@ import javafx.scene.Scene
 import javafx.scene.control.TabPane
 import javafx.scene.image.Image
 import org.jetbrains.exposed.sql.Database
-import src.controller.DiaryEntryController
-import src.controller.FoodController
-import src.controller.StatsController
+import src.controller.*
 import src.view.FoodListView
 import src.view.diary.DiaryEntryMainView
 import tornadofx.*
@@ -16,7 +14,6 @@ class HealthNutApp : App(HealthNutWorkspace::class, Styles::class) {
 
     init {
         addStageIcon(Image("app-icon.png"))
-
     }
 }
 
@@ -26,9 +23,15 @@ class HealthNutWorkspace : Workspace("HealthNut Workspace", NavigationMode.Tabs)
         Database.connect("jdbc:sqlite:./app.db", "org.sqlite.JDBC")
         createTables()
 
+        // start controllers
         StatsController()
         DiaryEntryController()
         FoodController()
+
+        // load initial data to display to the user
+        fire(FoodEventModel.RefreshRequest)
+        fire(DiaryEntryEventModel.RefreshRequest())
+        fire(DiaryEntryEventModel.FilterByEntryDateRequest())
 
         dock<FoodListView>()
         dock<DiaryEntryMainView>()
@@ -38,32 +41,5 @@ class HealthNutWorkspace : Workspace("HealthNut Workspace", NavigationMode.Tabs)
         shortcut("Ctrl+R") { onRefresh() }
         shortcut("Ctrl+A") { onCreate() }
         shortcut("Ctrl+X") { onDelete() }
-
-//        disableSave()
     }
-
-//    override val savable = SimpleBooleanProperty(false)
 }
-
-//
-//class HealthNutWorkspace : Workspace("HealthNut Workspace", NavigationMode.Stack) {
-//    val foodListView: FoodListView by inject()
-//    val diaryEditor: DiaryEntryListView by inject()
-//
-//    init {
-//        // initialize globals and controllers
-//        db.connect()
-//        FoodController()
-//
-//        // set up views
-//        with (leftDrawer) {
-//            multiselect = true
-////            floatingDrawers = true
-////            hgrow = Priority.ALWAYS
-//
-//                item(foodListView, true)
-//                item(diaryEditor, true)
-//
-//        }
-//    }
-//}
