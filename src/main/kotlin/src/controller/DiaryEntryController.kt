@@ -1,7 +1,7 @@
 package src.controller
 
 import org.jetbrains.exposed.sql.*
-import src.app.execute
+import src.utils.execute
 import src.model.DiaryEntries
 import src.model.DiaryEntry
 import src.model.toDiaryEntry
@@ -32,13 +32,27 @@ object DiaryEntryEventModel {
 class DiaryEntryController : Controller() {
 
     init {
-        subscribe<DiaryEntryEventModel.AddRequest> { fire(DiaryEntryEventModel.AddEvent(add(it.newEntryDate, it.newDescription, it.newCalories))) }
-        subscribe<DiaryEntryEventModel.UpdateCaloriesRequest> { fire(DiaryEntryEventModel.UpdateEvent(updateCalories(it.id, it.updatedCalories))) }
-        subscribe<DiaryEntryEventModel.UpdateDescriptionRequest> { fire(DiaryEntryEventModel.UpdateEvent(updateDescription(it.id, it.updatedDescription))) }
-        subscribe<DiaryEntryEventModel.UpdateEntryDateRequest> { fire(DiaryEntryEventModel.UpdateEvent(updateEntryDate(it.id, it.updatedEntryDate))) }
-        subscribe<DiaryEntryEventModel.DeleteRequest> { fire(DiaryEntryEventModel.DeleteEvent(delete(it.id))) }
-        subscribe<DiaryEntryEventModel.RefreshRequest> { fire(DiaryEntryEventModel.RefreshEvent(refresh())) }
-        subscribe<DiaryEntryEventModel.FilterByEntryDateRequest> { fire(DiaryEntryEventModel.RefreshEvent(filterByEntryDate(it.entryDate))) }
+        subscribe<DiaryEntryEventModel.AddRequest> {
+            fire(DiaryEntryEventModel.AddEvent(add(it.newEntryDate, it.newDescription, it.newCalories)))
+        }
+        subscribe<DiaryEntryEventModel.UpdateCaloriesRequest> {
+            fire(DiaryEntryEventModel.UpdateEvent(updateCalories(it.id, it.updatedCalories)))
+        }
+        subscribe<DiaryEntryEventModel.UpdateDescriptionRequest> {
+            fire(DiaryEntryEventModel.UpdateEvent(updateDescription(it.id, it.updatedDescription)))
+        }
+        subscribe<DiaryEntryEventModel.UpdateEntryDateRequest> {
+            fire(DiaryEntryEventModel.UpdateEvent(updateEntryDate(it.id, it.updatedEntryDate)))
+        }
+        subscribe<DiaryEntryEventModel.DeleteRequest> {
+            fire(DiaryEntryEventModel.DeleteEvent(delete(it.id)))
+        }
+        subscribe<DiaryEntryEventModel.RefreshRequest> {
+            fire(DiaryEntryEventModel.RefreshEvent(refresh()))
+        }
+        subscribe<DiaryEntryEventModel.FilterByEntryDateRequest> {
+            fire(DiaryEntryEventModel.RefreshEvent(filterByEntryDate(it.entryDate)))
+        }
     }
 
     private fun add(newEntryDate: LocalDate, newDescription: String, newCalories: Int): DiaryEntry {
@@ -70,13 +84,19 @@ class DiaryEntryController : Controller() {
         }
     }
 
-    private fun delete(id: Int) = execute { DiaryEntries.deleteWhere { DiaryEntries.id eq id } }
+    private fun delete(id: Int) = execute {
+        DiaryEntries.deleteWhere { DiaryEntries.id eq id }
+    }
 
     private fun refresh(): List<DiaryEntry> = execute {
-        DiaryEntries.selectAll().map { it.toDiaryEntry() }
+        DiaryEntries
+                .selectAll()
+                .map { it.toDiaryEntry() }
     }
 
     private fun filterByEntryDate(entryDate: LocalDate): List<DiaryEntry> = execute {
-        DiaryEntries.select({ DiaryEntries.entryDate eq entryDate.toDate() }).map { it.toDiaryEntry() }
+        DiaryEntries
+                .select({ DiaryEntries.entryDate eq entryDate.toDate() })
+                .map { it.toDiaryEntry() }
     }
 }

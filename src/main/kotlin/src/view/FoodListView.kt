@@ -1,18 +1,19 @@
 package src.view
 
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.scene.layout.Priority
 import src.app.Styles
 import src.controller.FoodEventModel
 import src.model.Food
-import src.model.FoodModel
 import src.utils.IntegerConverter
 import tornadofx.*
 
 
 class FoodListView : View() {
-    val model: FoodModel by inject()
+    val selectedId = SimpleIntegerProperty(-1)
+
     val nameFilterProperty = SimpleStringProperty().apply {
         onChange { fire(FoodEventModel.FilterByNameRequest(value ?: "")) }
     }
@@ -54,8 +55,6 @@ class FoodListView : View() {
                     fire(FoodEventModel.UpdateFavoriteRequest(it.rowValue.id, !it.oldValue))
                 }
             }
-            bindSelected(model)
-
             regainFocusAfterEdit()
             enableCellEditing()
 
@@ -67,19 +66,28 @@ class FoodListView : View() {
                 selectionModel.select(nextRow, nameCol)
                 edit(nextRow, nameCol)
             }
-            subscribe<FoodEventModel.DeleteEvent> { event -> items.remove(selectedItem) }
+            subscribe<FoodEventModel.DeleteEvent> {
+                items.remove(selectedItem)
+            }
             subscribe<FoodEventModel.RefreshEvent> { event ->
                 nameFilterProperty.set(null)
                 items.setAll(event.items)
             }
-            subscribe<FoodEventModel.FilterByNameEvent> { event -> items.setAll(event.items) }
+            subscribe<FoodEventModel.FilterByNameEvent> {
+                event -> items.setAll(event.items)
+            }
 
             disableSave()
+            onSelectionChange {
+                selectedId.set(it?.id ?: -1)
+            }
         }
     }
 
     override fun onCreate() = fire(FoodEventModel.AddRequest())
     override fun onSave() = fire(FoodEventModel.SaveRequest)
     override fun onRefresh() = fire(FoodEventModel.RefreshRequest)
-    override fun onDelete() = fire(FoodEventModel.DeleteRequest(model.id.value))
+    override fun onDelete() {
+        if (selectedId.value != -1) fire(FoodEventModel.DeleteRequest(selectedId.value))
+    }
 }

@@ -1,6 +1,5 @@
 package src.model
 
-import javafx.beans.property.Property
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
@@ -37,23 +36,6 @@ class Food(id: Int = -1, name: String = "", calories: Int = 0, favorite: Boolean
     var favorite: Boolean by favoriteProperty
 
     override fun toString() = "Food(id=$id, name=$name, calories=$calories, favorite=$favorite)"
-}
-
-class FoodModel(food: Food = Food()) : ItemViewModel<Food>(food) {
-    val id = bind(Food::id)
-    val name = bind(Food::name)
-    val calories = bind(Food::calories)
-    val favorite = bind(Food::favorite)
-
-    override fun onCommit(commits: List<Commit>) {
-        commits.findChanged(name)?.let { println("Name changed from ${it.first} to ${it.second}") }
-        commits.findChanged(calories)?.let { println("Calories changed from ${it.first} to ${it.second}") }
-    }
-
-    private fun <T> List<Commit>.findChanged(ref: Property<T>): Pair<T, T>? {
-        val commit = find { it.property == ref && it.changed }
-        return commit?.let { (it.newValue as T) to (it.oldValue as T) }
-    }
 }
 
 

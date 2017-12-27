@@ -1,8 +1,7 @@
 package src.controller
 
-import javafx.scene.control.Alert
 import org.jetbrains.exposed.sql.*
-import src.app.execute
+import src.utils.execute
 import src.model.Food
 import src.model.Foods
 import src.model.toFood
@@ -33,13 +32,27 @@ object FoodEventModel {
 class FoodController : Controller() {
 
     init {
-        subscribe<FoodEventModel.AddRequest> { fire(FoodEventModel.AddEvent(add(it.newName, it.newCalories))) }
-        subscribe<FoodEventModel.UpdateCaloriesRequest> { updateCalories(it.id, it.updatedCalories) }
-        subscribe<FoodEventModel.UpdateNameRequest> { updateName(it.id, it.updatedName) }
-        subscribe<FoodEventModel.UpdateFavoriteRequest> { updateFavorite(it.id, it.updatedFavorite) }
-        subscribe<FoodEventModel.DeleteRequest> { fire(FoodEventModel.DeleteEvent(delete(it.id))) }
-        subscribe<FoodEventModel.RefreshRequest> { fire(FoodEventModel.RefreshEvent(refresh())) }
-        subscribe<FoodEventModel.FilterByNameRequest> { fire(FoodEventModel.FilterByNameEvent(filterByName(it.nameLike))) }
+        subscribe<FoodEventModel.AddRequest> {
+            fire(FoodEventModel.AddEvent(add(it.newName, it.newCalories)))
+        }
+        subscribe<FoodEventModel.UpdateCaloriesRequest> {
+            updateCalories(it.id, it.updatedCalories)
+        }
+        subscribe<FoodEventModel.UpdateNameRequest> {
+            updateName(it.id, it.updatedName)
+        }
+        subscribe<FoodEventModel.UpdateFavoriteRequest> {
+            updateFavorite(it.id, it.updatedFavorite)
+        }
+        subscribe<FoodEventModel.DeleteRequest> {
+            fire(FoodEventModel.DeleteEvent(delete(it.id)))
+        }
+        subscribe<FoodEventModel.RefreshRequest> {
+            fire(FoodEventModel.RefreshEvent(getAll()))
+        }
+        subscribe<FoodEventModel.FilterByNameRequest> {
+            fire(FoodEventModel.FilterByNameEvent(filterByName(it.nameLike)))
+        }
     }
 
     private fun add(newName: String, newCalories: Int): Food {
@@ -64,7 +77,7 @@ class FoodController : Controller() {
                 it[favorite] = updatedFavorite
             }
         }
-        fire(FoodEventModel.FavoritesChangedEvent(refresh().filter { it.favorite }))
+        fire(FoodEventModel.FavoritesChangedEvent(getAll().filter { it.favorite }))
     }
 
     private fun updateName(id: Int, updatedName: String) = execute {
@@ -73,9 +86,13 @@ class FoodController : Controller() {
         }
     }
 
-    private fun delete(id: Int) = execute { Foods.deleteWhere { Foods.id eq id } }
+    private fun delete(id: Int) = execute {
+        Foods.deleteWhere { Foods.id eq id }
+    }
 
-    private fun refresh(): List<Food> = execute { Foods.selectAll().map { it.toFood() } }
+    private fun getAll(): List<Food> = execute {
+        Foods.selectAll().map { it.toFood() }
+    }
 
     private fun filterByName(name: String): List<Food> = execute {
         Foods.select { Foods.name like "%$name%" }.map { it.toFood() }

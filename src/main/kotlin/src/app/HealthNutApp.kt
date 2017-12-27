@@ -5,6 +5,7 @@ import javafx.scene.control.TabPane
 import javafx.scene.image.Image
 import org.jetbrains.exposed.sql.Database
 import src.controller.*
+import src.utils.createTables
 import src.view.FoodListView
 import src.view.diary.DiaryEntryMainView
 import tornadofx.*

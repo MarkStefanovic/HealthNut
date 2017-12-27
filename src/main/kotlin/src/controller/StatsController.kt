@@ -1,7 +1,7 @@
 package src.controller
 
 import org.jetbrains.exposed.sql.selectAll
-import src.app.execute
+import src.utils.execute
 import src.model.DiaryEntries
 import src.model.toDiaryEntry
 import tornadofx.*

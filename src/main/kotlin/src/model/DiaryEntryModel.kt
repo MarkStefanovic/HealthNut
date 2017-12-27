@@ -37,10 +37,3 @@ class DiaryEntry(id: Int = -1, entryDate: LocalDate = LocalDate.now(), descripti
 
     override fun toString() = "DiaryEntry(id=$id, entryDate=$entryDate, description=$description, calories=$calories)"
 }
-
-class DiaryEntryModel(entry: DiaryEntry = DiaryEntry()) : ItemViewModel<DiaryEntry>(entry) {
-    val id = bind(DiaryEntry::idProperty)
-    val entryDate = bind(DiaryEntry::entryDateProperty)
-    val description = bind(DiaryEntry::descriptionProperty)
-    val calories = bind(DiaryEntry::caloriesProperty)
-}

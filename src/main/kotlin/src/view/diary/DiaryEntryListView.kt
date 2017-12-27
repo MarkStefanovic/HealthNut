@@ -1,17 +1,17 @@
 package src.view.diary
 
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.scene.layout.Priority
 import src.app.Styles
 import src.controller.DiaryEntryEventModel
 import src.model.DiaryEntry
-import src.model.DiaryEntryModel
 import src.utils.IntegerConverter
 import src.utils.SafeDateStringConverter
 import tornadofx.*
 
 
 class DiaryEntryListView : View() {
-    val model: DiaryEntryModel by inject()
+    val selectedId = SimpleIntegerProperty(-1)
 
     override val root = tableview<DiaryEntry> {
         isEditable = true
@@ -43,8 +43,10 @@ class DiaryEntryListView : View() {
                 selectionModel.selectNext()
             }
         }
-        bindSelected(model)
 
+        onSelectionChange {
+            selectedId.set(it?.id ?: -1)
+        }
         regainFocusAfterEdit()
         enableCellEditing()
 
@@ -63,6 +65,8 @@ class DiaryEntryListView : View() {
     }
 
     override fun onRefresh() = fire(DiaryEntryEventModel.FilterByEntryDateRequest())
-    override fun onDelete() = fire(DiaryEntryEventModel.DeleteRequest(model.id.value.toInt()))
+    override fun onDelete() {
+        if (selectedId.value != -1) fire(DiaryEntryEventModel.DeleteRequest(selectedId.value))
+    }
 }
 
