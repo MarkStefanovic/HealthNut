@@ -9,8 +9,17 @@ import src.model.Foods
 import java.sql.Connection.TRANSACTION_SERIALIZABLE
 
 
-fun newTransaction(): Transaction = TransactionManager.currentOrNew(TRANSACTION_SERIALIZABLE).apply { logger.addLogger(StdOutSqlLogger) }
+private var LOG_TO_CONSOLE: Boolean = false
+
+//fun newTransaction(): Transaction = TransactionManager.currentOrNew(TRANSACTION_SERIALIZABLE).apply { logger.addLogger(StdOutSqlLogger) }
+fun newTransaction(): Transaction = TransactionManager.currentOrNew(TRANSACTION_SERIALIZABLE).apply {
+    if (LOG_TO_CONSOLE) logger.addLogger(StdOutSqlLogger)
+}
 // Isolation level options: TRANSACTION_SERIALIZABLE, TRANSACTION_READ_UNCOMMITTED
+
+fun enableConoleLogger() {
+    LOG_TO_CONSOLE = true
+}
 
 fun createTables() {
     with(newTransaction()) {

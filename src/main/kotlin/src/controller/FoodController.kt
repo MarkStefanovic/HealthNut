@@ -15,18 +15,16 @@ object FoodEventModel {
     class FilterByNameRequest(val nameLike: String = "") : FXEvent(EventBus.RunOn.BackgroundThread)
     class FilterByNameEvent(val items: List<Food>?) : FXEvent()
 
-    class UpdateCaloriesRequest(val id: Int, val updatedCalories: Int) : FXEvent(EventBus.RunOn.BackgroundThread)
-    class UpdateNameRequest(val id: Int, val updatedName: String) : FXEvent(EventBus.RunOn.BackgroundThread)
-    class UpdateFavoriteRequest(val id: Int, val updatedFavorite: Boolean) : FXEvent(EventBus.RunOn.BackgroundThread)
+    class UpdateRequest(val item: Food) : FXEvent(EventBus.RunOn.BackgroundThread)
+    class UpdateEvent(val id: Int) : FXEvent()
+
     class FavoritesChangedEvent(val items: List<Food>) : FXEvent()
 
     class DeleteRequest(val id: Int) : FXEvent(EventBus.RunOn.BackgroundThread)
     class DeleteEvent(val id: Int) : FXEvent()
 
-    object RefreshRequest : FXEvent(EventBus.RunOn.BackgroundThread)
+    class RefreshRequest : FXEvent(EventBus.RunOn.BackgroundThread)
     class RefreshEvent(val items: List<Food>) : FXEvent()
-
-    object SaveRequest : FXEvent(EventBus.RunOn.BackgroundThread)
 }
 
 class FoodController : Controller() {
@@ -35,14 +33,8 @@ class FoodController : Controller() {
         subscribe<FoodEventModel.AddRequest> {
             fire(FoodEventModel.AddEvent(add(it.newName, it.newCalories)))
         }
-        subscribe<FoodEventModel.UpdateCaloriesRequest> {
-            updateCalories(it.id, it.updatedCalories)
-        }
-        subscribe<FoodEventModel.UpdateNameRequest> {
-            updateName(it.id, it.updatedName)
-        }
-        subscribe<FoodEventModel.UpdateFavoriteRequest> {
-            updateFavorite(it.id, it.updatedFavorite)
+        subscribe<FoodEventModel.UpdateRequest> {
+            fire(FoodEventModel.UpdateEvent(update(it.item)))
         }
         subscribe<FoodEventModel.DeleteRequest> {
             fire(FoodEventModel.DeleteEvent(delete(it.id)))
@@ -65,25 +57,16 @@ class FoodController : Controller() {
         return Food(newFood[Foods.id], newName, newCalories)
     }
 
-    private fun updateCalories(id: Int, updatedCalories: Int) = execute {
-        Foods.update({ Foods.id eq id }) {
-            it[calories] = updatedCalories
-        }
-    }
-
-    private fun updateFavorite(id: Int, updatedFavorite: Boolean) {
-        execute {
-            Foods.update({ Foods.id eq id }) {
-                it[favorite] = updatedFavorite
+    private fun update(item: Food): Int {
+        val id = execute {
+            Foods.update({ Foods.id eq item.id }) {
+                it[name] = item.name
+                it[calories] = item.calories
+                it[favorite] = item.favorite
             }
         }
         fire(FoodEventModel.FavoritesChangedEvent(getAll().filter { it.favorite }))
-    }
-
-    private fun updateName(id: Int, updatedName: String) = execute {
-        Foods.update({ Foods.id eq id }) {
-            it[name] = updatedName
-        }
+        return id
     }
 
     private fun delete(id: Int) = execute {

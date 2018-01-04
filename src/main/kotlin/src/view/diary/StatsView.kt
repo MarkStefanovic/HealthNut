@@ -1,4 +1,4 @@
-package src.view
+package src.view.diary
 
 import javafx.beans.property.SimpleIntegerProperty
 import src.controller.StatsEventModel

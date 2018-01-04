@@ -37,7 +37,7 @@ class StatsController : Controller() {
 
         val dailyTotals: List<DailyTotal> = entries
                 .groupBy { it.entryDate }
-                .mapValues { it.value.sumBy { it.calories } }
+                .mapValues { it.value.sumBy { it.totalCalories.intValue() } }
                 .map { DailyTotal(it.key, it.value) }
                 .sortedByDescending { it.entryDate }
                 .filter { it.entryDate <= LocalDate.now() }

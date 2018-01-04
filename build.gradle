@@ -35,6 +35,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 
+    testCompile "org.testfx:testfx-core:4.0.10-alpha"
+    testCompile "org.testfx:testfx-junit:4.0.10-alpha"
 }
 
 mainClassName = 'src.app.HealthNutApp'

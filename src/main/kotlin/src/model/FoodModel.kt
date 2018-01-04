@@ -38,5 +38,13 @@ class Food(id: Int = -1, name: String = "", calories: Int = 0, favorite: Boolean
     override fun toString() = "Food(id=$id, name=$name, calories=$calories, favorite=$favorite)"
 }
 
+class FoodModel : ItemViewModel<Food>() {
+    val id = bind(Food::idProperty)
+    val name = bind(Food::nameProperty)
+    val calories = bind(Food::caloriesProperty)
+    val favorite = bind(Food::favoriteProperty)
+}
+
+
 
 
